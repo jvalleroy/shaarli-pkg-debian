@@ -7,16 +7,16 @@ Sets the location of the data, cache, pagecache and tmp directories to
 instead of their paths being relative to the application's directory.
 --- a/application/config/ConfigManager.php
 +++ b/application/config/ConfigManager.php
-@@ -38,7 +38,7 @@
-     /**
-      * Constructor.
+@@ -41,7 +41,7 @@
+      *
+      * @param string $configFile Configuration file path without extension.
       */
 -    public function __construct($configFile = 'data/config')
 +    public function __construct($configFile = '/var/lib/shaarli/data/config')
      {
          $this->configFile = $configFile;
          $this->initialize();
-@@ -287,17 +287,17 @@
+@@ -341,19 +341,19 @@
       */
      protected function setDefaultValues()
      {
@@ -34,7 +34,9 @@ instead of their paths being relative to the application's directory.
 +        $this->setEmpty('resource.updates', '/var/lib/shaarli/data/updates.txt');
 +        $this->setEmpty('resource.log', '/var/lib/shaarli/data/log.txt');
 +        $this->setEmpty('resource.update_check', '/var/lib/shaarli/data/lastupdatecheck.txt');
+         $this->setEmpty('resource.history', 'data/history.php');
          $this->setEmpty('resource.raintpl_tpl', 'tpl/');
+         $this->setEmpty('resource.theme', 'default');
 -        $this->setEmpty('resource.raintpl_tmp', 'tmp/');
 -        $this->setEmpty('resource.thumbnails_cache', 'cache');
 -        $this->setEmpty('resource.page_cache', 'pagecache');

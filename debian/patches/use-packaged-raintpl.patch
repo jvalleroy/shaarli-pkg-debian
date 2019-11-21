@@ -3,8 +3,8 @@ its source code (which is already removed from the DFSG repackaged
 archive)
 --- a/index.php
 +++ b/index.php
-@@ -55,7 +55,7 @@
-         ."- https://github.com/shaarli/Shaarli/wiki/Download-and-Installation";
+@@ -52,7 +52,7 @@
+         ."- https://shaarli.readthedocs.io/en/master/Download-and-Installation/";
      exit;
  }
 -require_once 'inc/rain.tpl.class.php';
