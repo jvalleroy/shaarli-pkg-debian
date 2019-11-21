@@ -3,7 +3,9 @@ Section: web
 Priority: optional
 Maintainer: Emilien Klein <emilien+debian@klein.st>
 Uploaders: Georges Khaznadar <georgesk@debian.org>
-Build-Depends: debhelper-compat (= 12), apache2-dev, pkg-php-tools
+Build-Depends: apache2-dev,
+               debhelper-compat (= 12),
+               pkg-php-tools
 Standards-Version: 4.4.1
 Homepage: https://github.com/shaarli/Shaarli
 Vcs-Browser: http://anonscm.debian.org/gitweb/?p=collab-maint/shaarli.git
@@ -12,14 +14,15 @@ Rules-Requires-Root: binary-targets
 
 Package: shaarli
 Architecture: all
-Depends: libapache2-mod-php | php-cgi | php-fpm | php,
-         php-gd,
-         javascript-common,
+Depends: javascript-common,
+         libapache2-mod-php | php-cgi | php-fpm | php,
          libjs-jquery,
-         libjs-jquery-ui,
          libjs-jquery-lazyload,
+         libjs-jquery-ui,
+         php-gd,
          raintpl,
-         ${misc:Depends}
+         ${misc:Depends},
+         ${phpcomposer:Debian-require}
 Recommends: apache2 | httpd, ${misc:Recommends}
 Description: Personal, minimalist, super-fast and no-database Delicious clone
  Saving simple links should not be a complicated heavy thing. Shaarli
