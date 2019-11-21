@@ -24,4 +24,4 @@ override_dh_fixperms:
 	chown www-data:www-data debian/shaarli/var/cache/shaarli/tmp
 
 %:
-	dh $@ --with apache2
+	dh $@ --with apache2 --with phpcomposer

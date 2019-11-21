@@ -3,7 +3,7 @@ Section: web
 Priority: optional
 Maintainer: Emilien Klein <emilien+debian@klein.st>
 Uploaders: Georges Khaznadar <georgesk@debian.org>
-Build-Depends: debhelper-compat (= 12), apache2-dev
+Build-Depends: debhelper-compat (= 12), apache2-dev, pkg-php-tools
 Standards-Version: 3.9.6
 Homepage: https://github.com/shaarli/Shaarli
 Vcs-Browser: http://anonscm.debian.org/gitweb/?p=collab-maint/shaarli.git
