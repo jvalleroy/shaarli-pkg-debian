@@ -1,8 +1,8 @@
 Source: shaarli
 Section: web
 Priority: optional
-Maintainer: Emilien Klein <emilien+debian@klein.st>
-Uploaders: Georges Khaznadar <georgesk@debian.org>
+Maintainer: Debian PHP PEAR Maintainers <pkg-php-pear@lists.alioth.debian.org>
+Uploaders: James Valleroy <jvalleroy@mailbox.org>
 Build-Depends: apache2-dev,
                debhelper-compat (= 12),
                pkg-php-tools
