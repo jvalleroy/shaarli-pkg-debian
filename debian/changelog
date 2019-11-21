@@ -7,8 +7,9 @@ shaarli (0.8.0~dfsg1-1) UNRELEASED; urgency=medium
   * New upstream version.
   * Update debian copyright file
   * Switch to debhelper-compat=12
+  * d/control: Add Rules-Requires-Root: binary-targets
 
- -- James Valleroy <jvalleroy@mailbox.org>  Wed, 20 Nov 2019 19:29:51 -0500
+ -- James Valleroy <jvalleroy@mailbox.org>  Wed, 20 Nov 2019 19:36:47 -0500
 
 shaarli (0.0.42~beta~dfsg1-2) unstable; urgency=low
 
