@@ -6,7 +6,9 @@
  * Shaare's descriptions are parsed with Markdown.
  */
 
-require_once 'Parsedown.php';
+use Shaarli\Config\ConfigManager;
+use Shaarli\Plugin\PluginManager;
+use Shaarli\Router;
 
 /*
  * If this tag is used on a shaare, the description won't be processed by Parsedown.
@@ -16,18 +18,24 @@ define('NO_MD_TAG', 'nomarkdown');
 /**
  * Parse linklist descriptions.
  *
- * @param array $data linklist data.
+ * @param array         $data linklist data.
+ * @param ConfigManager $conf instance.
  *
  * @return mixed linklist data parsed in markdown (and converted to HTML).
  */
-function hook_markdown_render_linklist($data)
+function hook_markdown_render_linklist($data, $conf)
 {
     foreach ($data['links'] as &$value) {
         if (!empty($value['tags']) && noMarkdownTag($value['tags'])) {
-            $value['taglist'] = stripNoMarkdownTag($value['taglist']);
+            $value = stripNoMarkdownTag($value);
             continue;
         }
-        $value['description'] = process_markdown($value['description']);
+        $value['description_src'] = $value['description'];
+        $value['description'] = process_markdown(
+            $value['description'],
+            $conf->get('security.markdown_escape', true),
+            $conf->get('security.allowed_protocols')
+        );
     }
     return $data;
 }
@@ -36,17 +44,23 @@ function hook_markdown_render_linklist($data)
  * Parse feed linklist descriptions.
  *
  * @param array $data linklist data.
+ * @param ConfigManager $conf instance.
  *
  * @return mixed linklist data parsed in markdown (and converted to HTML).
  */
-function hook_markdown_render_feed($data)
+function hook_markdown_render_feed($data, $conf)
 {
     foreach ($data['links'] as &$value) {
         if (!empty($value['tags']) && noMarkdownTag($value['tags'])) {
-            $value['tags'] = stripNoMarkdownTag($value['tags']);
+            $value = stripNoMarkdownTag($value);
             continue;
         }
-        $value['description'] = process_markdown($value['description']);
+        $value['description'] = reverse_feed_permalink($value['description']);
+        $value['description'] = process_markdown(
+            $value['description'],
+            $conf->get('security.markdown_escape', true),
+            $conf->get('security.allowed_protocols')
+        );
     }
 
     return $data;
@@ -55,20 +69,25 @@ function hook_markdown_render_feed($data)
 /**
  * Parse daily descriptions.
  *
- * @param array $data daily data.
+ * @param array         $data daily data.
+ * @param ConfigManager $conf instance.
  *
  * @return mixed daily data parsed in markdown (and converted to HTML).
  */
-function hook_markdown_render_daily($data)
+function hook_markdown_render_daily($data, $conf)
 {
+    //var_dump($data);die;
     // Manipulate columns data
-    foreach ($data['cols'] as &$value) {
-        foreach ($value as &$value2) {
-            if (!empty($value2['tags']) && noMarkdownTag($value2['tags'])) {
-                continue;
-            }
-            $value2['formatedDescription'] = process_markdown($value2['formatedDescription']);
+    foreach ($data['linksToDisplay'] as &$value) {
+        if (!empty($value['tags']) && noMarkdownTag($value['tags'])) {
+            $value = stripNoMarkdownTag($value);
+            continue;
         }
+        $value['formatedDescription'] = process_markdown(
+            $value['formatedDescription'],
+            $conf->get('security.markdown_escape', true),
+            $conf->get('security.allowed_protocols')
+        );
     }
 
     return $data;
@@ -83,20 +102,30 @@ function hook_markdown_render_daily($data)
  */
 function noMarkdownTag($tags)
 {
-    return strpos($tags, NO_MD_TAG) !== false;
+    return preg_match('/(^|\s)'. NO_MD_TAG .'(\s|$)/', $tags);
 }
 
 /**
  * Remove the no-markdown meta tag so it won't be displayed.
  *
- * @param string $tags Tag list.
+ * @param array $link Link data.
  *
- * @return string tag list without no markdown tag.
+ * @return array Updated link without no markdown tag.
  */
-function stripNoMarkdownTag($tags)
+function stripNoMarkdownTag($link)
 {
-    unset($tags[array_search(NO_MD_TAG, $tags)]);
-    return array_values($tags);
+    if (! empty($link['taglist'])) {
+        $offset = array_search(NO_MD_TAG, $link['taglist']);
+        if ($offset !== false) {
+            unset($link['taglist'][$offset]);
+        }
+    }
+
+    if (!empty($link['tags'])) {
+        str_replace(NO_MD_TAG, '', $link['tags']);
+    }
+
+    return $link;
 }
 
 /**
@@ -112,7 +141,6 @@ function hook_markdown_render_includes($data)
         || $data['_PAGE_'] == Router::$PAGE_DAILY
         || $data['_PAGE_'] == Router::$PAGE_EDITLINK
     ) {
-        
         $data['css_files'][] = PluginManager::$PLUGINS_PATH . '/markdown/markdown.css';
     }
 
@@ -130,8 +158,13 @@ function hook_markdown_render_includes($data)
 function hook_markdown_render_editlink($data)
 {
     // Load help HTML into a string
-    $data['edit_link_plugin'][] = file_get_contents(PluginManager::$PLUGINS_PATH .'/markdown/help.html');
-
+    $txt = file_get_contents(PluginManager::$PLUGINS_PATH .'/markdown/help.html');
+    $translations = [
+        t('Description will be rendered with'),
+        t('Markdown syntax documentation'),
+        t('Markdown syntax'),
+    ];
+    $data['edit_link_plugin'][] = vsprintf($txt, $translations);
     // Add no markdown 'meta-tag' in tag list if it was never used, for autocompletion.
     if (! in_array(NO_MD_TAG, $data['tags'])) {
         $data['tags'][NO_MD_TAG] = 0;
@@ -157,13 +190,13 @@ function reverse_text2clickable($description)
     $lineCount = 0;
 
     foreach ($descriptionLines as $descriptionLine) {
-        // Detect line of code
-        $codeLineOn = preg_match('/^    /', $descriptionLine) > 0;
+        // Detect line of code: starting with 4 spaces,
+        // except lists which can start with +/*/- or `2.` after spaces.
+        $codeLineOn = preg_match('/^    +(?=[^\+\*\-])(?=(?!\d\.).)/', $descriptionLine) > 0;
         // Detect and toggle block of code
         if (!$codeBlockOn) {
             $codeBlockOn = preg_match('/^```/', $descriptionLine) > 0;
-        }
-        elseif (preg_match('/^```/', $descriptionLine) > 0) {
+        } elseif (preg_match('/^```/', $descriptionLine) > 0) {
             $codeBlockOn = false;
         }
 
@@ -175,13 +208,22 @@ function reverse_text2clickable($description)
             $descriptionLine
         );
 
-        // Reverse hashtag links if we're in a code block.
-        $hashtagFilter = ($codeBlockOn || $codeLineOn) ? $hashtagTitle : '';
+        // Reverse all links in code blocks, only non hashtag elsewhere.
+        $hashtagFilter = (!$codeBlockOn && !$codeLineOn) ? '(?!'. $hashtagTitle .')': '(?:'. $hashtagTitle .')?';
         $descriptionLine = preg_replace(
-            '!<a href="[^ ]*"'. $hashtagFilter .'>([^<]+)</a>!m',
+            '#<a href="[^ ]*"'. $hashtagFilter .'>([^<]+)</a>#m',
             '$1',
             $descriptionLine
         );
+
+        // Make hashtag links markdown ready, otherwise the links will be ignored with escape set to true
+        if (!$codeBlockOn && !$codeLineOn) {
+            $descriptionLine = preg_replace(
+                '#<a href="([^ ]*)"'. $hashtagTitle .'>([^<]+)</a>#m',
+                '[$2]($1)',
+                $descriptionLine
+            );
+        }
 
         $descriptionOut .= $descriptionLine;
         if ($lineCount++ < count($descriptionLines) - 1) {
@@ -215,6 +257,30 @@ function reverse_space2nbsp($description)
     return preg_replace('/(^| )&nbsp;/m', '$1 ', $description);
 }
 
+function reverse_feed_permalink($description)
+{
+    return preg_replace('@&#8212; <a href="([^"]+)" title="[^"]+">(\w+)</a>$@im', '&#8212; [$2]($1)', $description);
+}
+
+/**
+ * Replace not whitelisted protocols with http:// in given description.
+ *
+ * @param string $description      input description text.
+ * @param array  $allowedProtocols list of allowed protocols.
+ *
+ * @return string $description without malicious link.
+ */
+function filter_protocols($description, $allowedProtocols)
+{
+    return preg_replace_callback(
+        '#]\((.*?)\)#is',
+        function ($match) use ($allowedProtocols) {
+            return ']('. whitelist_protocols($match[1], $allowedProtocols) .')';
+        },
+        $description
+    );
+}
+
 /**
  * Remove dangerous HTML tags (tags, iframe, etc.).
  * Doesn't affect <code> content (already escaped by Parsedown).
@@ -236,13 +302,17 @@ function sanitize_html($description)
     foreach ($escapeTags as $tag) {
         $description = preg_replace_callback(
             '#<\s*'. $tag .'[^>]*>(.*</\s*'. $tag .'[^>]*>)?#is',
-            function ($match) { return escape($match[0]); },
-            $description);
+            function ($match) {
+                return escape($match[0]);
+            },
+            $description
+        );
     }
     $description = preg_replace(
-        '#(<[^>]+)on[a-z]*="[^"]*"#is',
+        '#(<[^>]+\s)on[a-z]*="?[^ "]*"?#is',
         '$1',
-        $description);
+        $description
+    );
     return $description;
 }
 
@@ -255,10 +325,11 @@ function sanitize_html($description)
  *   5. Wrap description in 'markdown' CSS class.
  *
  * @param string $description input description text.
+ * @param bool   $escape      escape HTML entities
  *
  * @return string HTML processed $description.
  */
-function process_markdown($description)
+function process_markdown($description, $escape = true, $allowedProtocols = [])
 {
     $parsedown = new Parsedown();
 
@@ -266,16 +337,29 @@ function process_markdown($description)
     $processedDescription = reverse_nl2br($processedDescription);
     $processedDescription = reverse_space2nbsp($processedDescription);
     $processedDescription = reverse_text2clickable($processedDescription);
+    $processedDescription = filter_protocols($processedDescription, $allowedProtocols);
     $processedDescription = unescape($processedDescription);
     $processedDescription = $parsedown
-        ->setMarkupEscaped(false)
+        ->setMarkupEscaped($escape)
         ->setBreaksEnabled(true)
         ->text($processedDescription);
     $processedDescription = sanitize_html($processedDescription);
 
-    if(!empty($processedDescription)){
+    if (!empty($processedDescription)) {
         $processedDescription = '<div class="markdown">'. $processedDescription . '</div>';
     }
 
     return $processedDescription;
+}
+
+/**
+ * This function is never called, but contains translation calls for GNU gettext extraction.
+ */
+function markdown_dummy_translation()
+{
+    // meta
+    t('Render shaare description with Markdown syntax.<br><strong>Warning</strong>:
+If your shaared descriptions contained HTML tags before enabling the markdown plugin,
+enabling it might break your page.
+See the <a href="https://github.com/shaarli/Shaarli/tree/master/plugins/markdown#html-rendering">README</a>.');
 }

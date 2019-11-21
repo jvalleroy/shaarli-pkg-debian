@@ -1,4 +1,7 @@
 <?php
+
+use Shaarli\Config\Exception\PluginConfigOrderException;
+
 /**
  * Plugin configuration helper functions.
  *
@@ -31,8 +34,7 @@ function save_plugin_config($formData)
         // If there is no order, it means a disabled plugin has been enabled.
         if (isset($formData['order_' . $key])) {
             $plugins[(int) $formData['order_' . $key]] = $key;
-        }
-        else {
+        } else {
             $newEnabledPlugins[] = $key;
         }
     }
@@ -107,18 +109,4 @@ function load_plugin_parameter_values($plugins, $conf)
     }
 
     return $out;
-}
-
-/**
- * Exception used if an error occur while saving plugin configuration.
- */
-class PluginConfigOrderException extends Exception
-{
-    /**
-     * Construct exception.
-     */
-    public function __construct()
-    {
-        $this->message = 'An error occurred while trying to save plugins loading order.';
-    }
 }

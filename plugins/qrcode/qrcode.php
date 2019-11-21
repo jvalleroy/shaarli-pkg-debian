@@ -5,6 +5,9 @@
  * Display a QRCode icon in link list.
  */
 
+use Shaarli\Plugin\PluginManager;
+use Shaarli\Router;
+
 /**
  * Add qrcode icon to link_plugin when rendering linklist.
  *
@@ -17,8 +20,8 @@ function hook_qrcode_render_linklist($data)
     $qrcode_html = file_get_contents(PluginManager::$PLUGINS_PATH . '/qrcode/qrcode.html');
 
     foreach ($data['links'] as &$value) {
-        $qrcode = sprintf($qrcode_html,
-            urlencode($value['url']),
+        $qrcode = sprintf(
+            $qrcode_html,
             $value['url'],
             PluginManager::$PLUGINS_PATH
         );
@@ -58,4 +61,13 @@ function hook_qrcode_render_includes($data)
     }
 
     return $data;
+}
+
+/**
+ * This function is never called, but contains translation calls for GNU gettext extraction.
+ */
+function qrcode_dummy_translation()
+{
+    // meta
+    t('For each link, add a QRCode icon.');
 }

@@ -5,6 +5,8 @@
  * Adds the addlink input on the linklist page.
  */
 
+use Shaarli\Router;
+
 /**
  * When linklist is displayed, add play videos to header's toolbar.
  *
@@ -15,24 +17,37 @@
 function hook_addlink_toolbar_render_header($data)
 {
     if ($data['_PAGE_'] == Router::$PAGE_LINKLIST && $data['_LOGGEDIN_'] === true) {
-        $data['fields_toolbar'][] = file_get_contents(PluginManager::$PLUGINS_PATH . '/addlink_toolbar/addlink_toolbar.html');
+        $form = array(
+            'attr' => array(
+                'method' => 'GET',
+                'action' => '',
+                'name'   => 'addform',
+                'class'  => 'addform',
+            ),
+            'inputs' => array(
+                array(
+                    'type' => 'text',
+                    'name' => 'post',
+                    'placeholder' => t('URI'),
+                ),
+                array(
+                    'type' => 'submit',
+                    'value' => t('Add link'),
+                    'class' => 'bigbutton',
+                ),
+            ),
+        );
+        $data['fields_toolbar'][] = $form;
     }
 
     return $data;
 }
 
 /**
- * When link list is displayed, include markdown CSS.
- *
- * @param array $data - includes data.
- *
- * @return mixed - includes data with markdown CSS file added.
+ * This function is never called, but contains translation calls for GNU gettext extraction.
  */
-function hook_addlink_toolbar_render_includes($data)
+function addlink_toolbar_dummy_translation()
 {
-    if ($data['_PAGE_'] == Router::$PAGE_LINKLIST && $data['_LOGGEDIN_'] === true) {
-        $data['css_files'][] = PluginManager::$PLUGINS_PATH . '/addlink_toolbar/addlink_toolbar.css';
-    }
-
-    return $data;
+    // meta
+    t('Adds the addlink input on the linklist page.');
 }
