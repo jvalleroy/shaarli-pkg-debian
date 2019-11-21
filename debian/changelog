@@ -13,8 +13,9 @@ shaarli (0.8.0~dfsg1-1) UNRELEASED; urgency=medium
   * d/control: Add pkg-php-tools to Build Depends
   * d/control: Update Standards-Version to 4.4.1
   * d/control: Add dependencies from phpcomposer
+  * d/control: Change Vcs links to php-team on Salsa
 
- -- James Valleroy <jvalleroy@mailbox.org>  Wed, 20 Nov 2019 20:29:29 -0500
+ -- James Valleroy <jvalleroy@mailbox.org>  Wed, 20 Nov 2019 20:33:50 -0500
 
 shaarli (0.0.42~beta~dfsg1-2) unstable; urgency=low
 
