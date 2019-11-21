@@ -1,7 +1,7 @@
-Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: Shaarli
 Upstream-Contact: Sébastien Sauvage <sebsauvage@sebsauvage.net>
-Source: http://sebsauvage.net/wiki/doku.php?id=php:shaarli
+Source: https://sebsauvage.net/wiki/doku.php?id=php:shaarli
 Files-Excluded: inc/rain.tpl.class.php plugins/playvideos/jquery-1.11.2*.js
 
 Files: *
@@ -47,12 +47,12 @@ Copyright: (c) 2010, Yahoo! Inc.
 Files: images/calendar.png images/edit_icon.png images/feed-icon-14x14.png images/private.png images/private_16x16.png images/private_16x16_active.png images/tag_blue.png
 License: CC-BY-3.0
 Copyright: (c) 2014 Yusuke Kamiyamane
-Source: http://p.yusukekamiyamane.com/
+Source: https://p.yusukekamiyamane.com/
 
 Files: images/delete_icon.png
 License: CC-BY-3.0
 Copyright: (c) 2014 Designmodo
-Source: http://designmodo.com/linecons-free/
+Source: https://designmodo.com/linecons-free/
 
 Files: images/floral_left.png images/floral_right.png images/squiggle.png images/squiggle2.png images/squiggle_closing.png
 License: CC0
@@ -60,8 +60,8 @@ Copyright: (c) 2008 j4p4n - https://openclipart.org/user-detail/j4p4n
 Source: https://openclipart.org/people/j4p4n/j4p4n_ornimental_bookend_-_left.svg
 
 Files: images/Paper_texture_v5_by_bashcorpo_w1000.jpg
-Copyright: (c) 2005 bashcorpo - http://www.bashcorpo.dk/?lang=2
-Source: http://bashcorpo.deviantart.com/art/Grungy-paper-texture-v-5-22966998
+Copyright: (c) 2005 bashcorpo - https://www.bashcorpo.dk/?lang=2
+Source: https://bashcorpo.deviantart.com/art/Grungy-paper-texture-v-5-22966998
 License: bashcorpo
  All my textures are royalty FREE for both private and commercial
  profit use - no linking or credits needed.
