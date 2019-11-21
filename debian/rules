@@ -11,12 +11,6 @@
 
 override_dh_fixperms:
 	dh_fixperms
-	# The files in the released tarball are set to executable (source is
-	# released from Windows)
-	chmod 644 debian/shaarli/usr/share/shaarli/images/*
-	chmod 644 debian/shaarli/usr/share/shaarli/inc/*
-	chmod 644 debian/shaarli/usr/share/shaarli/tpl/*
-	chmod 644 debian/shaarli/usr/share/shaarli/index.php
 	# Make the web server user the owner of the cache and data directories
 	chown www-data:www-data debian/shaarli/var/lib/shaarli/data
 	chown www-data:www-data debian/shaarli/var/cache/shaarli/cache

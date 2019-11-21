@@ -17,8 +17,9 @@ shaarli (0.8.0~dfsg1-1) UNRELEASED; urgency=medium
   * d/control: Move to PHP PEAR team
   * d/patch: Refresh patches
   * d/install: Fix paths changed in new version
+  * d/rules: Remove unneeded file permission changes
 
- -- James Valleroy <jvalleroy@mailbox.org>  Thu, 21 Nov 2019 01:59:17 -0500
+ -- James Valleroy <jvalleroy@mailbox.org>  Thu, 21 Nov 2019 18:20:32 -0500
 
 shaarli (0.0.42~beta~dfsg1-2) unstable; urgency=low
 
