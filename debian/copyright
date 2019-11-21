@@ -2,7 +2,7 @@ Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: Shaarli
 Upstream-Contact: Sébastien Sauvage <sebsauvage@sebsauvage.net>
 Source: https://sebsauvage.net/wiki/doku.php?id=php:shaarli
-Files-Excluded: inc/rain.tpl.class.php plugins/playvideos/jquery-1.11.2*.js
+Files-Excluded: doc/html/js/*.min.js inc/rain.tpl.class.php plugins/playvideos/jquery-1.11.2*.js plugins/qrcode/qr-1.1.3.min.js tpl/default/js/*.min.js tpl/vintage/js/*.min.js vendor/*
 
 Files: *
 License: zlib/libpng
