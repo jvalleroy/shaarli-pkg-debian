@@ -16,8 +16,9 @@ shaarli (0.8.0~dfsg1-1) UNRELEASED; urgency=medium
   * d/control: Change Vcs links to php-team on Salsa
   * d/control: Move to PHP PEAR team
   * d/patch: Refresh patches
+  * d/install: Fix paths changed in new version
 
- -- James Valleroy <jvalleroy@mailbox.org>  Thu, 21 Nov 2019 01:52:22 -0500
+ -- James Valleroy <jvalleroy@mailbox.org>  Thu, 21 Nov 2019 01:59:17 -0500
 
 shaarli (0.0.42~beta~dfsg1-2) unstable; urgency=low
 

@@ -1,4 +1,3 @@
+assets/ /usr/share/shaarli
 index.php /usr/share/shaarli
-images/ /usr/share/shaarli
-inc/shaarli.css /usr/share/shaarli/inc
 tpl/ /usr/share/shaarli
