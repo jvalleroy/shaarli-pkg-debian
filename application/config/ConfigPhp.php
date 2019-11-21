@@ -1,4 +1,5 @@
 <?php
+namespace Shaarli\Config;
 
 /**
  * Class ConfigPhp (ConfigIO implementation)
@@ -26,7 +27,7 @@ class ConfigPhp implements ConfigIO
     /**
      * Map legacy config keys with the new ones.
      * If ConfigPhp is used, getting <newkey> will actually look for <legacykey>.
-     * The Updater will use this array to transform keys when switching to JSON.
+     * The updater will use this array to transform keys when switching to JSON.
      *
      * @var array current key => legacy key.
      */
@@ -41,6 +42,7 @@ class ConfigPhp implements ConfigIO
         'resource.log' => 'config.LOG_FILE',
         'resource.update_check' => 'config.UPDATECHECK_FILENAME',
         'resource.raintpl_tpl' => 'config.RAINTPL_TPL',
+        'resource.theme' => 'config.theme',
         'resource.raintpl_tmp' => 'config.RAINTPL_TMP',
         'resource.thumbnails_cache' => 'config.CACHEDIR',
         'resource.page_cache' => 'config.PAGECACHE',
@@ -71,7 +73,7 @@ class ConfigPhp implements ConfigIO
     /**
      * @inheritdoc
      */
-    function read($filepath)
+    public function read($filepath)
     {
         if (! file_exists($filepath) || ! is_readable($filepath)) {
             return array();
@@ -81,17 +83,17 @@ class ConfigPhp implements ConfigIO
 
         $out = array();
         foreach (self::$ROOT_KEYS as $key) {
-            $out[$key] = $GLOBALS[$key];
+            $out[$key] = isset($GLOBALS[$key]) ? $GLOBALS[$key] : '';
         }
-        $out['config'] = $GLOBALS['config'];
-        $out['plugins'] = !empty($GLOBALS['plugins']) ? $GLOBALS['plugins'] : array();
+        $out['config'] = isset($GLOBALS['config']) ? $GLOBALS['config'] : [];
+        $out['plugins'] = isset($GLOBALS['plugins']) ? $GLOBALS['plugins'] : [];
         return $out;
     }
 
     /**
      * @inheritdoc
      */
-    function write($filepath, $conf)
+    public function write($filepath, $conf)
     {
         $configStr = '<?php '. PHP_EOL;
         foreach (self::$ROOT_KEYS as $key) {
@@ -99,25 +101,33 @@ class ConfigPhp implements ConfigIO
                 $configStr .= '$GLOBALS[\'' . $key . '\'] = ' . var_export($conf[$key], true) . ';' . PHP_EOL;
             }
         }
-        
+
         // Store all $conf['config']
         foreach ($conf['config'] as $key => $value) {
-            $configStr .= '$GLOBALS[\'config\'][\''. $key .'\'] = '.var_export($conf['config'][$key], true).';'. PHP_EOL;
+            $configStr .= '$GLOBALS[\'config\'][\''
+                . $key
+                .'\'] = '
+                .var_export($conf['config'][$key], true).';'
+                . PHP_EOL;
         }
 
         if (isset($conf['plugins'])) {
             foreach ($conf['plugins'] as $key => $value) {
-                $configStr .= '$GLOBALS[\'plugins\'][\''. $key .'\'] = '.var_export($conf['plugins'][$key], true).';'. PHP_EOL;
+                $configStr .= '$GLOBALS[\'plugins\'][\''
+                    . $key
+                    .'\'] = '
+                    .var_export($conf['plugins'][$key], true).';'
+                    . PHP_EOL;
             }
         }
 
         if (!file_put_contents($filepath, $configStr)
             || strcmp(file_get_contents($filepath), $configStr) != 0
         ) {
-            throw new IOException(
+            throw new \Shaarli\Exceptions\IOException(
                 $filepath,
-                'Shaarli could not create the config file.
-                Please make sure Shaarli has the right to write in the folder is it installed in.'
+                t('Shaarli could not create the config file. '.
+                  'Please make sure Shaarli has the right to write in the folder is it installed in.')
             );
         }
     }
@@ -125,7 +135,7 @@ class ConfigPhp implements ConfigIO
     /**
      * @inheritdoc
      */
-    function getExtension()
+    public function getExtension()
     {
         return '.php';
     }

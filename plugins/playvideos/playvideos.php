@@ -6,6 +6,9 @@
  * Note: this plugin adds jQuery.
  */
 
+use Shaarli\Plugin\PluginManager;
+use Shaarli\Router;
+
 /**
  * When linklist is displayed, add play videos to header's toolbar.
  *
@@ -16,7 +19,15 @@
 function hook_playvideos_render_header($data)
 {
     if ($data['_PAGE_'] == Router::$PAGE_LINKLIST) {
-        $data['buttons_toolbar'][] = file_get_contents(PluginManager::$PLUGINS_PATH . '/playvideos/playvideos.html');
+        $playvideo = array(
+            'attr' => array(
+                'href' => '#',
+                'title' => t('Video player'),
+                'id' => 'playvideos',
+            ),
+            'html' => '► '. t('Play Videos')
+        );
+        $data['buttons_toolbar'][] = $playvideo;
     }
 
     return $data;
@@ -37,4 +48,13 @@ function hook_playvideos_render_footer($data)
     }
 
     return $data;
+}
+
+/**
+ * This function is never called, but contains translation calls for GNU gettext extraction.
+ */
+function playvideos_dummy_translation()
+{
+    // meta
+    t('Add a button in the toolbar allowing to watch all videos.');
 }
